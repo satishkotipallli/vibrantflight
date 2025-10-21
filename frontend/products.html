@@ -82,8 +82,12 @@
     </main>
 
     <script>
-      const API_PRODUCTS = "http://localhost:5000/api/products";
-      const API_CART = "http://localhost:5000/api/cart";
+      const API_URL = window.location.hostname === "localhost"
+      ? "http://localhost:5000/api"
+      : "https://my-backend-ylvx.onrender.com/api";
+      
+      const API_PRODUCTS = `${API_URL}/products`;
+      const API_CART = `${API_URL}/cart`;
 
       const grid = document.getElementById("productGrid");
       const filterCategory = document.getElementById("filterCategory");
@@ -296,3 +300,4 @@
     </footer>
   </body>
 </html>
+
