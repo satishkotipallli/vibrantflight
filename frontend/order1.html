@@ -64,6 +64,9 @@
     </footer>
 
     <script>
+      const API_URL = window.location.hostname === "localhost"
+      ? "http://localhost:5000/api"
+      : "https://my-backend-ylvx.onrender.com/api";
       async function loadOrderPage() {
         const token = localStorage.getItem("token");
         const container = document.getElementById("orderPage");
@@ -84,7 +87,7 @@
           }
         } else {
           try {
-            const res = await fetch("http://localhost:5000/api/cart", {
+            const res = await fetch(`${API_URL}/cart`, {
               headers: { Authorization: `Bearer ${token}` },
             });
             const data = await res.json();
@@ -110,7 +113,7 @@
         // Fetch user details (with address)
         let user = {};
         try {
-          const res = await fetch("http://localhost:5000/api/users/me", {
+          const res = await fetch(`${API_URL}/users/me`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           if (res.ok) user = await res.json();
@@ -230,7 +233,7 @@
             };
 
             try {
-              const res = await fetch("http://localhost:5000/api/orders", {
+              const res = await fetch(`${API_URL}/orders`, {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
@@ -304,3 +307,4 @@
     </script>
   </body>
 </html>
+
