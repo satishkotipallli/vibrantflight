@@ -210,6 +210,10 @@
     </header>
 
     <script>
+      const API_URL = window.location.hostname === "localhost"
+      ? "http://localhost:5000/api"
+      : "https://my-backend-ylvx.onrender.com/api";
+      
       const menuSearchBtn = document.getElementById("menuSearchBtn");
       const searchWrapper = document.getElementById("searchWrapper");
       const searchInput = document.getElementById("searchInput");
@@ -223,7 +227,7 @@
       // ✅ Load product data
       async function loadSearchData() {
         try {
-          const res = await fetch("http://localhost:5000/api/products");
+          const res = await fetch(`${API_URL}/products`);
           searchData = await res.json();
         } catch (err) {
           console.error("❌ Error loading search data:", err);
@@ -409,7 +413,9 @@
     </div>
 
     <script>
-      const API_URL = "http://localhost:5000/api/auth";
+      const API_URL = window.location.hostname === "localhost"
+      ? "http://localhost:5000/api"
+      : "https://my-backend-ylvx.onrender.com/api";
 
       /* ===== LOGIN / SIGNUP / FORGOT HTML TEMPLATES ===== */
       function loginHTML() {
@@ -1096,7 +1102,7 @@
         // ✅ Fetch products from backend
         async function fetchProducts() {
           try {
-            const res = await fetch("http://localhost:5000/api/products");
+            const res = await fetch(`${API_URL}/products`);
             allProducts = await res.json();
             renderProducts();
           } catch (err) {
@@ -1180,7 +1186,9 @@
       </script>
 
       <script>
-        const API_CART = "http://localhost:5000/api/cart";
+        const API_CART = window.location.hostname === "localhost"
+      ? "http://localhost:5000/api/cart"
+      : "https://my-backend-ylvx.onrender.com/api/cart";
 
         // 🧭 Fetch user's cart from DB on page load
         async function fetchCart() {
@@ -1497,8 +1505,9 @@
       </section>
 
       <script>
-        const CONTACT_API = "http://localhost:5000/api/contact";
-
+        const CONTACT_API = window.location.hostname === "localhost"
+      ? "http://localhost:5000/api/contact"
+      : "https://my-backend-ylvx.onrender.com/api/contact";
         document
           .getElementById("anythingForm")
           .addEventListener("submit", async (e) => {
@@ -1862,3 +1871,4 @@
     </script>
   </body>
 </html>
+
