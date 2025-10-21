@@ -123,7 +123,13 @@
     ></div>
 
     <script>
-      const BASE = "http://localhost:5000";
+      const API_URL = window.location.hostname === "localhost"
+      ? "http://localhost:5000/api"
+      : "https://my-backend-ylvx.onrender.com/api";
+      
+      const BASE = window.location.hostname === "localhost"
+      ? "http://localhost:5000"
+      : "https://my-backend-ylvx.onrender.com";
       const form = document.getElementById("productForm");
       const adminProducts = document.getElementById("adminProducts");
 
@@ -230,3 +236,4 @@
     </script>
   </body>
 </html>
+
