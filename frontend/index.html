@@ -413,9 +413,9 @@
     </div>
 
     <script>
-      // const API_URL = window.location.hostname === "localhost"
-      // ? "http://localhost:5000/api"
-      // : "https://my-backend-ylvx.onrender.com/api";
+      const API_URL_auth = window.location.hostname === "localhost"
+      ? "http://localhost:5000/api/auth"
+      : "https://my-backend-ylvx.onrender.com/api/auth";
 
       /* ===== LOGIN / SIGNUP / FORGOT HTML TEMPLATES ===== */
       function loginHTML() {
@@ -525,7 +525,7 @@
             let data; // ✅ define outside try block
 
             try {
-              const res = await fetch(`${API_URL}/login`, {
+              const res = await fetch(`${API_URL_auth}/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password }),
@@ -607,7 +607,7 @@
               return toast("Passwords do not match!", { type: "error" });
 
             try {
-              const res = await fetch(`${API_URL}/register`, {
+              const res = await fetch(`${API_URL_auth}/register`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ name, email, mobile, password: pw }),
@@ -646,7 +646,7 @@
               });
 
             try {
-              const res = await fetch(`${API_URL}/forgot`, {
+              const res = await fetch(`${API_URL_auth}/forgot`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email }),
@@ -1872,5 +1872,6 @@
     </script>
   </body>
 </html>
+
 
 
