@@ -417,6 +417,10 @@
     </div>
 
     <script>
+      const API_URL = window.location.hostname === "localhost"
+      ? "http://localhost:5000/api"
+      : "https://my-backend-ylvx.onrender.com/api";
+      
       const mainImage = document.getElementById("mainImage");
       const thumbsEl = document.getElementById("thumbs");
       const productName = document.getElementById("productName");
@@ -480,7 +484,7 @@
 
       async function fetchProduct(id) {
         try {
-          const res = await fetch(`http://localhost:5000/api/products/${id}`);
+          const res = await fetch(`${API_URL}/products/${id}`);
           if (!res.ok) throw new Error("Product not found");
           const p = await res.json();
           currentProduct = p;
@@ -596,7 +600,7 @@
         const token = localStorage.getItem("token");
         if (!token) return;
         try {
-          const res = await fetch("http://localhost:5000/api/cart", {
+          const res = await fetch(`${API_URL}/cart`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           const data = await res.json();
@@ -611,7 +615,7 @@
         if (token) {
           try {
             const res = await fetch(
-              `http://localhost:5000/api/cart/${productId}`,
+              `${API_URL}/cart/${productId}`,
               {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` },
@@ -651,7 +655,7 @@
 
         if (token) {
           try {
-            const res = await fetch("http://localhost:5000/api/cart", {
+            const res = await fetch(`${API_URL}/cart`, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -759,3 +763,4 @@
     </script>
   </body>
 </html>
+
