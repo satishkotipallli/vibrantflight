@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vibrant Flight — Elevate Your Journey</title>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Poppins:wght@300;400;500;600&display=swap"
+    rel="stylesheet"
+  />
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    body {
+      background-color: #fafafa; /* softer off-white */
+      font-family: "Poppins", sans-serif;
+      color: #222;
+      padding: 20px;
+    }
+
+    .form-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 28px;
+      max-width: 700px;
+      margin: 40px auto;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    h3 {
+      font-family: "Playfair Display", serif;
+      color: #111;
+    }
+
+    input, select {
+      background: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 12px;
+      width: 100%;
+      margin-bottom: 18px; /* slightly more gap between fields */
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+    }
+
+    input:focus, select:focus {
+      border-color: #d4af37;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+    }
+
+    label {
+      font-weight: 500;
+      color: #333;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .section {
+      margin-bottom: 36px; /* more vertical spacing between sections */
+    }
+
+    .grid-gap-large {
+      display: grid;
+      gap: 24px; /* wider gaps between address rows */
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 24px;
+      margin-top: 12px;
+    }
+
+    .radio-group label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 400;
+    }
+
+    .button-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .btn-cancel {
+      flex: 1;
+      background-color: white;
+      color: black;
+      border: 1px solid black;
+      font-weight: 600;
+      padding: 12px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-cancel:hover {
+      background-color: #f2f2f2;
+    }
+
+    .btn-save {
+      flex: 1;
+      background-color: #ff914d; /* orange */
+      color: white;
+      border: 1px solid white;
+      font-weight: 600;
+      padding: 12px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-save:hover {
+      background-color: #e58c00;
+    }
+
+    @media (max-width: 640px) {
+      .button-row {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="form-card">
+    <form class="grid gap-6">
+      <!-- Contact Details -->
+      <div class="section">
+        <h3 class="text-2xl mb-4">Contact Details</h3>
+        <div class="grid sm:grid-cols-2 gap-6">
+          <div>
+            <label for="name">Full Name*</label>
+            <input type="text" id="name" placeholder="Name" required />
+          </div>
+          <div>
+            <label for="poMobile">Mobile No*</label>
+            <input type="tel" id="poMobile" placeholder="Mobile No" required />
+          </div>
+        </div>
+      </div>
+
+      <!-- Address Section -->
+      <div class="section">
+        <h3 class="text-2xl mb-4">Address</h3>
+
+        <div class="grid sm:grid-cols-2 gap-6">
+          <div>
+            <label for="pincode">Pincode*</label>
+            <input type="text" id="pincode" placeholder="pincode" required />
+          </div>
+          <div>
+            <label for="houseNumber">House / Flat No*</label>
+            <input type="text" id="houseNumber" placeholder="house or flat no" required />
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <label for="street">Address (Locality / Building / Street)*</label>
+          <input type="text" id="street" placeholder="address" required />
+        </div>
+
+        <!-- Added more space here -->
+        <div class="grid-gap-large mt-6 sm:grid-cols-2">
+          <div>
+            <label for="locality">Locality / Town*</label>
+            <input type="text" id="locality" placeholder="locality or town" required />
+          </div>
+          <div>
+            <label for="city">City / District*</label>
+            <input type="text" id="city" placeholder="city or district" required />
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <label for="state">State*</label>
+          <input type="text" id="state" placeholder="state" required />
+        </div>
+      </div>
+
+      <!-- Address Type -->
+      <div class="section">
+        <h3 class="text-2xl mb-4">Address Type</h3>
+        <div class="radio-group">
+          <label>
+            <input type="radio" name="addressType" value="home" required />
+            Home
+          </label>
+          <label>
+            <input type="radio" name="addressType" value="office" />
+            Office
+          </label>
+        </div>
+      </div>
+
+      <div class="button-row">
+        <button type="button" class="btn-cancel" onclick="history.back()">Cancel</button>
+        <button type="submit" class="btn-save">Save</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+document.querySelector("form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const token = localStorage.getItem("token");
+  if (!token) {
+    alert("Please login first!");
+    window.location.href = "login.html";
+    return;
+  }
+
+  const addressData = {
+    house: document.getElementById("houseNumber").value.trim(),
+    street: document.getElementById("street").value.trim(),
+    city: document.getElementById("city").value.trim(),
+    state: document.getElementById("state").value.trim(),
+    pincode: document.getElementById("pincode").value.trim(),
+  };
+
+  try {
+    const response = await fetch("http://localhost:5000/api/users/address", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(addressData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) throw new Error(data.message || "Failed to update address");
+
+    alert("✅ Address updated successfully!");
+    window.location.href="order1.html"; // redirect or stay as you prefer
+  } catch (err) {
+    console.error("Address update error:", err);
+    alert("Failed to update address: " + err.message);
+  }
+});
+</script>
+
+</body>
+</html>

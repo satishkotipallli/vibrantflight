@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Vibrant Flight — Product</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --gold1: #ffd700;
+        --gold2: #ffc700;
+        --bg: #0f0f0f;
+      }
+      body {
+        font-family: "Poppins", sans-serif;
+        background: linear-gradient(180deg, #0b0b0b 0%, #0f0f0f 100%);
+        color: #f1f5f9;
+      }
+      .logo-mark {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        display: inline-block;
+        background: linear-gradient(135deg, var(--gold1), var(--gold2));
+        box-shadow: 0 6px 18px rgba(255, 215, 0, 0.3);
+      }
+      .glass {
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.04),
+          rgba(255, 255, 255, 0.02)
+        );
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 6px 30px rgba(0, 0, 0, 0.5);
+      }
+      .badge {
+        background: linear-gradient(90deg, var(--gold1), var(--gold2));
+        color: black;
+        padding: 6px 10px;
+        font-weight: 700;
+        border-radius: 999px;
+        font-size: 12px;
+        box-shadow: 0 6px 20px rgba(255, 215, 0, 0.3);
+      }
+      .thumb {
+        border-radius: 10px;
+        overflow: hidden;
+        border: 2px solid transparent;
+        transition: all 0.18s ease;
+        cursor: pointer;
+      }
+      .thumb.active {
+        border-color: var(--gold2);
+        transform: scale(1.05);
+        box-shadow: 0 8px 30px rgba(255, 215, 0, 0.2);
+      }
+      .thumb:hover {
+        border-color: var(--gold2);
+        transform: scale(1.05);
+      }
+      .btn-primary {
+        background: linear-gradient(90deg, var(--gold1), var(--gold2));
+        color: #0f0f0f;
+        font-weight: 700;
+        padding: 12px 18px;
+        border-radius: 14px;
+        letter-spacing: 0.6px;
+        box-shadow: 0 8px 30px rgba(255, 215, 0, 0.2);
+        transition: all 0.3s ease;
+      }
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 40px rgba(255, 215, 0, 0.3);
+      }
+      .btn-outline {
+        border-radius: 14px;
+        padding: 12px 18px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #f8fafc;
+        background: transparent;
+        text-align: center;
+        font-weight: 600;
+      }
+      #toast {
+        position: fixed;
+        left: 50%;
+        transform: translateX(-50%) translateY(30px);
+        bottom: 18px;
+        z-index: 60;
+        padding: 12px 18px;
+        border-radius: 12px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        min-width: 220px;
+        max-width: 90%;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.35s ease;
+      }
+      #toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+        pointer-events: auto;
+      }
+      #cartPanel {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 320px;
+        max-width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.02),
+          rgba(255, 255, 255, 0.05)
+        );
+        backdrop-filter: blur(12px);
+        box-shadow: -5px 0 30px rgba(0, 0, 0, 0.7);
+        transition: right 0.4s ease;
+        z-index: 100;
+        display: flex;
+        flex-direction: column;
+      }
+      #cartPanel.show {
+        right: 0;
+      }
+      .cart-item {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 12px;
+        align-items: center;
+      }
+      .cart-item img {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 8px;
+      }
+      .cart-item .info {
+        flex: 1;
+        font-size: 14px;
+      }
+      .cart-item .info .price {
+        color: var(--gold2);
+        font-weight: 600;
+      }
+      .review {
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        padding-top: 12px;
+        margin-top: 12px;
+      }
+      .zoom-lens {
+        position: absolute;
+        border: 2px solid var(--gold2);
+        border-radius: 50%;
+        width: 120px;
+        height: 120px;
+        display: none;
+        pointer-events: none;
+        background-repeat: no-repeat;
+        background-size: 200% 200%;
+      }
+      .modal-bg {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.85);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 200;
+      }
+      .modal-bg.show {
+        display: flex;
+      }
+      .modal-content {
+        position: relative;
+        width: 80%;
+        max-width: 700px;
+      }
+      .modal-content img {
+        width: 100%;
+        height: auto;
+        object-fit: contain;
+      }
+      .modal-close {
+        position: absolute;
+        top: 8px;
+        right: 12px;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+      }
+      @media (max-width: 768px) {
+        .desktop-only {
+          display: none;
+        }
+        .mobile-stack {
+          flex-direction: column !important;
+          gap: 12px !important;
+        }
+        #cartPanel {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body class="min-h-screen">
+    <header
+      class="w-full sticky top-0 z-50 bg-gradient-to-b from-[rgba(15,15,15,0.9)] to-[rgba(15,15,15,0.6)] backdrop-blur-sm border-b border-white/5"
+    >
+      <div
+        class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between gap-4"
+      >
+        <div
+          class="flex items-center gap-3 cursor-pointer"
+          onclick="window.location.href='index.html'"
+        >
+          <span class="logo-mark"></span>
+          <div>
+            <div class="text-xl font-semibold">Vibrant Flight</div>
+            <div class="text-xs text-white/70 -mt-1">Elevate your vibe</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <button id="homeBtn" class="px-3 py-2 rounded-md hover:bg-white/5">
+            Home
+          </button>
+          <button id="cartBtn" class="relative p-2 rounded-md hover:bg-white/5">
+            <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
+              <path
+                d="M3 3h2l1 7h11l3-6H6"
+                stroke="white"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            <span
+              id="cartCount"
+              class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1"
+              >0</span
+            >
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-10">
+      <div
+        id="productWrap"
+        class="flex gap-10 flex-col md:flex-row items-start"
+      >
+        <div class="md:w-1/2 w-full relative">
+          <div class="glass p-4 relative">
+            <div
+              id="imageFrame"
+              class="w-full rounded-xl overflow-hidden relative"
+              style="aspect-ratio: 1/1; cursor: crosshair"
+            >
+              <img
+                id="mainImage"
+                src=""
+                alt="product image"
+                class="w-full h-full object-cover transition-transform duration-300"
+              />
+              <div id="zoomLens" class="zoom-lens"></div>
+            </div>
+          </div>
+          <div class="mt-4 flex gap-3 overflow-x-auto py-2" id="thumbs"></div>
+        </div>
+
+        <div class="md:w-1/2 w-full flex flex-col gap-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h1 id="productName" class="text-3xl font-bold tracking-tight">
+                —
+              </h1>
+              <div id="subtitle" class="text-sm text-white mt-1">
+                Limited drop
+              </div>
+            </div>
+            <div class="text-right">
+              <div
+                id="price"
+                class="text-2xl font-extrabold"
+                style="color: var(--gold2)"
+              >
+                ₹0
+              </div>
+              <div class="text-xs text-white/70 mt-1">
+                Free shipping over ₹999
+              </div>
+            </div>
+          </div>
+
+          <p id="desc" class="text-sm text-white/80 leading-relaxed">
+            Product description goes here.
+          </p>
+
+          <div
+            class="flex flex-col sm:flex-row items-center gap-3 mt-3 mobile-stack"
+          >
+            <div class="flex items-center gap-2">
+              <label class="text-xs text-white/70 mr-2">Size</label>
+              <select
+                id="sizeSelect"
+                class="bg-white/5 px-3 py-2 rounded-lg text-sm outline-none"
+              >
+                <option>S</option>
+                <option selected>M</option>
+                <option>L</option>
+                <option>XL</option>
+              </select>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <label class="text-xs text-white/70 mr-2">Qty</label>
+              <div class="flex items-center bg-white/5 rounded-lg px-2">
+                <button id="qtyDown" class="px-3 py-2 text-lg">-</button>
+                <input
+                  id="qty"
+                  class="w-12 text-center bg-transparent outline-none"
+                  value="1"
+                />
+                <button id="qtyUp" class="px-3 py-2 text-lg">+</button>
+              </div>
+            </div>
+
+            <div class="flex-1 flex gap-3 w-full">
+              <button id="addCart" class="btn-primary w-full">
+                Add to Cart
+              </button>
+              <button id="buyNow" class="btn-outline w-full">Buy Now</button>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3 mt-4">
+            <span class="badge">Trending</span>
+          </div>
+
+          <div class="mt-6">
+            <h2 class="text-lg font-semibold mb-2">You might also like</h2>
+            <div
+              id="suggestions"
+              class="grid grid-cols-2 md:grid-cols-3 gap-3"
+            ></div>
+          </div>
+
+          <div class="mt-6">
+            <h2 class="text-lg font-semibold mb-2">Customer Reviews</h2>
+            <div id="reviews"></div>
+            <div class="mt-4">
+              <input
+                id="reviewName"
+                placeholder="Your name"
+                class="w-full p-2 rounded-lg bg-white/5 text-sm outline-none text-white/90 mb-2"
+              />
+              <textarea
+                id="reviewInput"
+                placeholder="Write a review..."
+                class="w-full p-2 rounded-lg bg-white/5 text-sm outline-none text-white/90"
+              ></textarea>
+              <button id="submitReview" class="btn-primary mt-2 w-full">
+                Submit Review
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div id="cartPanel">
+      <div
+        class="flex justify-between items-center p-4 border-b border-white/10"
+      >
+        <h2 class="font-semibold text-lg">Your Cart</h2>
+        <button id="closeCart" class="text-white/70 hover:text-white">
+          &times;
+        </button>
+      </div>
+      <div id="cartItems" class="flex-1 overflow-y-auto p-4"></div>
+      <div class="p-4 border-t border-white/10 flex flex-col gap-2">
+        <div class="flex justify-between text-white/80">
+          <span>Subtotal:</span><span id="cartSub">₹0</span>
+        </div>
+        <button id="checkoutBtn" class="btn-primary w-full mb-2">
+          Checkout
+        </button>
+        <button id="clearCart" class="btn-outline w-full">Clear Cart</button>
+      </div>
+    </div>
+
+    <div id="modal" class="modal-bg">
+      <div class="modal-content">
+        <span class="modal-close">&times;</span>
+        <img id="modalImg" src="" />
+      </div>
+    </div>
+
+    <div
+      id="toast"
+      style="
+        background: linear-gradient(90deg, var(--gold1), var(--gold2));
+        color: #0f0f0f;
+      "
+    >
+      <div id="toastText" class="text-sm font-semibold ml-2 mr-3">Success</div>
+      <button id="toastClose" class="text-xs font-medium mr-2">Close</button>
+    </div>
+
+    <script>
+      const mainImage = document.getElementById("mainImage");
+      const thumbsEl = document.getElementById("thumbs");
+      const productName = document.getElementById("productName");
+      const priceEl = document.getElementById("price");
+      const descEl = document.getElementById("desc");
+      const addCartBtn = document.getElementById("addCart");
+      const qtyInput = document.getElementById("qty");
+      const qtyUp = document.getElementById("qtyUp");
+      const qtyDown = document.getElementById("qtyDown");
+      const toast = document.getElementById("toast");
+      const toastText = document.getElementById("toastText");
+      const toastClose = document.getElementById("toastClose");
+      const cartCount = document.getElementById("cartCount");
+      const cartBtn = document.getElementById("cartBtn");
+      const cartPanel = document.getElementById("cartPanel");
+      const closeCart = document.getElementById("closeCart");
+      const cartItems = document.getElementById("cartItems");
+      const suggestions = document.getElementById("suggestions");
+      const reviewsEl = document.getElementById("reviews");
+      const reviewInput = document.getElementById("reviewInput");
+      const reviewName = document.getElementById("reviewName");
+      const submitReview = document.getElementById("submitReview");
+      const modal = document.getElementById("modal");
+      const modalImg = document.getElementById("modalImg");
+      const modalClose = document.querySelector(".modal-close");
+
+      // Quantity buttons
+      qtyUp.onclick = () => (qtyInput.value = Math.max(1, +qtyInput.value + 1));
+      qtyDown.onclick = () =>
+        (qtyInput.value = Math.max(1, +qtyInput.value - 1));
+      toastClose.onclick = () => toast.classList.remove("show");
+      document.getElementById("homeBtn").onclick = () =>
+        (window.location.href = "index.html");
+      cartBtn.onclick = () => cartPanel.classList.add("show");
+      closeCart.onclick = () => cartPanel.classList.remove("show");
+      modalClose.onclick = () => modal.classList.remove("show");
+      modal.onclick = (e) => {
+        if (e.target === modal) modal.classList.remove("show");
+      };
+      mainImage.onclick = () => {
+        modal.classList.add("show");
+        modalImg.src = mainImage.src;
+      };
+
+      function showToast(text, type = "success") {
+        toastText.textContent = text;
+        toast.style.background =
+          type === "error"
+            ? "linear-gradient(90deg,#ff6b6b,#ff8787)"
+            : "linear-gradient(90deg,var(--gold1),var(--gold2))";
+        toast.classList.add("show");
+        clearTimeout(window._toastTimer);
+        window._toastTimer = setTimeout(
+          () => toast.classList.remove("show"),
+          2500
+        );
+      }
+
+      const productId = new URLSearchParams(window.location.search).get("id");
+      let currentProduct = null;
+
+      async function fetchProduct(id) {
+        try {
+          const res = await fetch(`http://localhost:5000/api/products/${id}`);
+          if (!res.ok) throw new Error("Product not found");
+          const p = await res.json();
+          currentProduct = p;
+          renderProduct(p);
+        } catch (err) {
+          console.error(err);
+          showToast("Failed to load product", "error");
+        }
+      }
+
+      function renderProduct(p) {
+        productName.textContent = p.name;
+        priceEl.textContent = "₹" + p.price;
+        descEl.textContent = p.description;
+        mainImage.src = p.images[0];
+
+        // Thumbnails
+        thumbsEl.innerHTML = p.images
+          .map(
+            (src, i) => `
+      <div class="thumb ${
+        i === 0 ? "active" : ""
+      }" data-idx="${i}" style="width:72px;height:72px;">
+        <img src="${src}" class="w-full h-full object-cover">
+      </div>`
+          )
+          .join("");
+
+        thumbsEl.querySelectorAll(".thumb").forEach((t) => {
+          t.onclick = () => {
+            thumbsEl
+              .querySelectorAll(".thumb")
+              .forEach((x) => x.classList.remove("active"));
+            t.classList.add("active");
+            mainImage.src = p.images[t.dataset.idx];
+          };
+        });
+
+        // Suggestions
+        suggestions.innerHTML = p.suggestions
+          .map(
+            (s) => `
+      <div class="glass p-2 rounded-md flex flex-col items-center text-center cursor-pointer hover:scale-105 transition-transform"
+        onclick="window.location.href='product.html?id=${s._id}'">
+        <img src="${s.img}" class="w-full h-28 object-cover rounded-md mb-2">
+        <div class="text-sm font-medium">${s.name}</div>
+        <div class="text-xs text-white/60">₹${s.price}</div>
+      </div>`
+          )
+          .join("");
+
+        // Reviews
+        reviewsEl.innerHTML = p.reviews
+          .map(
+            (r) => `
+      <div class="review">
+        <div class="text-sm font-semibold">${r.user}</div>
+        <div class="text-xs text-white/70">${r.comment}</div>
+      </div>`
+          )
+          .join("");
+      }
+
+      submitReview.onclick = () => {
+        if (!reviewName.value || !reviewInput.value) {
+          showToast("Enter name & review", "error");
+          return;
+        }
+        currentProduct.reviews.push({
+          user: reviewName.value,
+          comment: reviewInput.value,
+        });
+        reviewName.value = "";
+        reviewInput.value = "";
+        renderProduct(currentProduct);
+        showToast("Review submitted");
+      };
+
+      function updateCartUI(cart) {
+        if (!cart || !cart.items || cart.items.length === 0) {
+          cartItems.innerHTML = `<p class="text-white/60 text-center mt-4">Cart empty</p>`;
+          document.getElementById("cartSub").textContent = "₹0";
+          cartCount.textContent = "0";
+          return;
+        }
+        cartCount.textContent = cart.items.reduce((s, i) => s + i.quantity, 0);
+        document.getElementById("cartSub").textContent =
+          "₹" +
+          cart.items
+            .reduce((s, i) => s + i.product.price * i.quantity, 0)
+            .toFixed(2);
+
+        cartItems.innerHTML = cart.items
+          .map(
+            (i) => `
+      <div class="cart-item" data-id="${i.product._id}">
+        <img src="${i.product.images[0]}">
+        <div class="info">
+          <div>${i.product.name}</div>
+          <div class="price">₹${i.product.price} × ${i.quantity}</div>
+        </div>
+        <button class="text-red-500 text-xs hover:underline removeItemBtn">Remove</button>
+      </div>`
+          )
+          .join("");
+
+        cartItems.querySelectorAll(".removeItemBtn").forEach((b) => {
+          b.onclick = () => removeFromCart(b.closest("[data-id]").dataset.id);
+        });
+      }
+
+      async function fetchCartFromDB() {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+        try {
+          const res = await fetch("http://localhost:5000/api/cart", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const data = await res.json();
+          if (res.ok && data.cart) updateCartUI(data.cart);
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      async function removeFromCart(productId) {
+        const token = localStorage.getItem("token");
+        if (token) {
+          try {
+            const res = await fetch(
+              `http://localhost:5000/api/cart/${productId}`,
+              {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
+              }
+            );
+            const data = await res.json();
+            if (res.ok) {
+              showToast("Item removed 🗑️");
+              updateCartUI(data.cart);
+            } else showToast(data.message || "Failed to remove item", "error");
+          } catch (err) {
+            console.error(err);
+            showToast("Error removing item", "error");
+          }
+        } else {
+          let cart = JSON.parse(localStorage.getItem("cart")) || [];
+          cart = cart.filter((x) => x._id !== productId);
+          localStorage.setItem("cart", JSON.stringify(cart));
+          const cartForUI = cart.map((c) => ({
+            product: {
+              _id: c._id,
+              name: c.name,
+              images: c.images,
+              price: c.price,
+            },
+            quantity: c.quantity,
+          }));
+          updateCartUI({ items: cartForUI });
+          showToast("Item removed 🗑️");
+        }
+      }
+
+      addCartBtn.onclick = async () => {
+        if (!currentProduct) return;
+        const qty = parseInt(qtyInput.value) || 1;
+        const token = localStorage.getItem("token");
+
+        if (token) {
+          try {
+            const res = await fetch("http://localhost:5000/api/cart", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                productId: currentProduct._id,
+                quantity: qty,
+              }),
+            });
+            const data = await res.json();
+            if (res.ok) {
+              showToast("Added to cart 🛒");
+              updateCartUI(data.cart);
+            } else showToast(data.message || "Failed to add", "error");
+          } catch (err) {
+            console.error(err);
+            showToast("Error adding to cart", "error");
+          }
+        } else {
+          let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+          // If product exists, add to current quantity
+          const index = cart.findIndex((x) => x._id === currentProduct._id);
+          if (index > -1) {
+            cart[index].quantity += qty;
+          } else {
+            cart.push({
+              _id: currentProduct._id,
+              name: currentProduct.name,
+              images: currentProduct.images,
+              price: currentProduct.price,
+              quantity: qty,
+            });
+          }
+
+          localStorage.setItem("cart", JSON.stringify(cart));
+
+          const cartForUI = cart.map((c) => ({
+            product: {
+              _id: c._id,
+              name: c.name,
+              images: c.images,
+              price: c.price,
+            },
+            quantity: c.quantity,
+          }));
+          updateCartUI({ items: cartForUI });
+          showToast("Added to cart (local)");
+        }
+      };
+
+      document.getElementById("clearCart").onclick = () => {
+        localStorage.removeItem("cart");
+        updateCartUI({ items: [] });
+        showToast("Cart cleared");
+      };
+
+      document.getElementById("buyNow").onclick = () => {
+        if (!currentProduct) return;
+        const product = {
+          _id: currentProduct._id,
+          name: currentProduct.name,
+          img: currentProduct.images[0],
+          price: currentProduct.price,
+          quantity: parseInt(qtyInput.value) || 1,
+        };
+        localStorage.setItem("buyNowProduct", JSON.stringify(product));
+        window.location.href = "order1.html?buynow=true";
+      };
+
+      // Initialize
+      fetchProduct(productId);
+      const token = localStorage.getItem("token");
+      if (token) fetchCartFromDB();
+      else {
+        const localCart = JSON.parse(localStorage.getItem("cart") || "[]");
+        const cartForUI = localCart.map((c) => ({
+          product: {
+            _id: c._id,
+            name: c.name,
+            images: c.images,
+            price: c.price,
+          },
+          quantity: c.quantity,
+        }));
+        updateCartUI({ items: cartForUI });
+      }
+
+      document.getElementById("checkoutBtn").onclick = () => {
+        const token = localStorage.getItem("token");
+
+        // If logged in, fetch cart from backend
+        if (token) {
+          window.location.href = "order1.html?buynow=false";
+        } else {
+          const cart = JSON.parse(localStorage.getItem("cart")) || [];
+          if (!cart.length) {
+            showToast("Cart is empty", "error");
+            return;
+          }
+          window.location.href = "order1.html?buynow=false";
+        }
+      };
+    </script>
+  </body>
+</html>

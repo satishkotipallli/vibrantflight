@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Order Summary — Vibrant Flight</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        background-color: #fafafa;
+        font-family: "Poppins", sans-serif;
+      }
+      .glass {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      }
+      .gold {
+        color: #d4af37;
+      }
+      .btn-primary {
+        background: linear-gradient(90deg, #ff8a00, #ff4d4d);
+        color: white;
+        border: none;
+      }
+      .btn-primary:hover {
+        opacity: 0.9;
+      }
+    </style>
+  </head>
+
+  <body class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header
+      class="bg-white shadow p-4 flex items-center gap-3 sticky top-0 z-10"
+    >
+      <button
+        onclick="window.location.href='index.html'"
+        class="text-gray-700 text-2xl"
+      >
+        ←
+      </button>
+      <h1 class="text-xl font-semibold">Order Summary</h1>
+    </header>
+
+    <!-- Main -->
+    <main id="orderPage" class="flex-1 p-4 space-y-6 pb-24">
+      <div id="orderContainer" class="p-4"></div>
+      <div id="orderSummary" class="p-4 bg-white rounded-xl shadow mt-4"></div>
+    </main>
+
+    <!-- Footer -->
+    <footer
+      id="footerBar"
+      class="fixed bottom-0 left-0 right-0 bg-white border-t p-4 hidden"
+    >
+      <button
+        id="placeOrderBtn"
+        class="btn-primary px-6 py-3 rounded-xl font-semibold text-sm w-full"
+      >
+        Confirm & Pay
+      </button>
+    </footer>
+
+    <script>
+      async function loadOrderPage() {
+        const token = localStorage.getItem("token");
+        const container = document.getElementById("orderPage");
+        let items = [];
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const isBuyNow = urlParams.get("buynow") === "true";
+
+        if (isBuyNow) {
+          // 🔹 Load single product from localStorage
+          const product = JSON.parse(localStorage.getItem("buyNowProduct"));
+          if (product) {
+            items = [product];
+          } else {
+            container.innerHTML =
+              "<p class='text-center text-gray-500 mt-10'>No product selected for Buy Now.</p>";
+            return;
+          }
+        } else {
+          try {
+            const res = await fetch("http://localhost:5000/api/cart", {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await res.json();
+            if (res.ok && data.cart && data.cart.items) {
+              items = data.cart.items.map((i) => ({
+                name: i.product.name,
+                img: i.product.img,
+                price: i.product.price,
+                quantity: i.quantity,
+              }));
+            }
+          } catch (err) {
+            console.error("Error loading cart:", err);
+          }
+        }
+
+        if (!items.length) {
+          container.innerHTML =
+            "<p class='text-center text-gray-500'>Your cart is empty.</p>";
+          return;
+        }
+
+        // Fetch user details (with address)
+        let user = {};
+        try {
+          const res = await fetch("http://localhost:5000/api/users/me", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (res.ok) user = await res.json();
+        } catch (err) {
+          console.warn("Could not fetch user details");
+        }
+
+        // Calculate totals
+        const subtotal = items.reduce(
+          (sum, i) => sum + i.price * i.quantity,
+          0
+        );
+        const discount = Math.floor(subtotal * 0.1);
+        const deliveryFee = 30;
+        const total = subtotal - discount + deliveryFee;
+
+        // Build HTML
+        container.innerHTML = `
+        <!-- Address Section -->
+        <div class="glass rounded-xl p-4 space-y-2">
+          <h2 class="font-semibold text-gray-700 text-lg flex items-center gap-2">
+            <span>📍</span> Delivery Address
+          </h2>
+          ${
+            user.address
+              ? `<p class="text-gray-600 text-sm">${
+                  user.address.house || ""
+                }, ${user.address.street || ""}, ${user.address.city || ""} - ${
+                  user.address.pincode || ""
+                }</p>`
+              : `<p class="text-gray-400 text-sm">No address added yet.</p>`
+          }
+          <button onclick="window.location.href='address.html'" class="text-pink-600 font-semibold text-sm mt-2">
+            Change / Add Address
+          </button>
+        </div>
+
+        <!-- Product Items -->
+        <div class="space-y-3">
+          <h2 class="font-semibold text-gray-700 text-lg">Items in Your Order</h2>
+          ${items
+            .map(
+              (i) => `
+            <div class="glass rounded-xl flex gap-3 p-3">
+              <img src="${i.img}" alt="${i.name}" class="w-20 h-20 object-cover rounded-lg">
+              <div class="flex-1">
+                <h3 class="font-semibold text-gray-800">${i.name}</h3>
+                <p class="text-sm text-gray-500">Qty: ${i.quantity}</p>
+                <p class="text-gray-700 font-medium mt-1">₹${i.price}</p>
+              </div>
+            </div>
+          `
+            )
+            .join("")}
+        </div>
+
+        <!-- Price Summary -->
+        <div class="glass rounded-xl p-4 space-y-2">
+          <h2 class="font-semibold text-gray-700 text-lg">Price Details</h2>
+          <div class="flex justify-between text-gray-600"><p>Subtotal</p><p>₹${subtotal}</p></div>
+          <div class="flex justify-between text-green-600"><p>Discount</p><p>-₹${discount}</p></div>
+          <div class="flex justify-between text-gray-600"><p>Delivery Fee</p><p>₹${deliveryFee}</p></div>
+          <hr class="my-2" />
+          <div class="flex justify-between text-gray-900 font-semibold text-lg"><p>Total</p><p>₹${total}</p></div>
+        </div>
+
+        <!-- Payment Method -->
+        <div class="glass rounded-xl p-4 space-y-2">
+          <h2 class="font-semibold text-gray-700 text-lg">Choose Payment Method</h2>
+          <div class="flex flex-col gap-3">
+            <label class="flex items-center gap-2">
+              <input type="radio" name="payment" value="cod" checked />
+              <span>Cash on Delivery</span>
+            </label>
+            <label class="flex items-center gap-2">
+              <input type="radio" name="payment" value="upi" />
+              <span>UPI / Wallet</span>
+            </label>
+            <label class="flex items-center gap-2">
+              <input type="radio" name="payment" value="card" />
+              <span>Credit / Debit Card</span>
+            </label>
+          </div>
+        </div>
+      `;
+
+        document.getElementById("footerBar").classList.remove("hidden");
+
+        // Place Order button
+        document.addEventListener("DOMContentLoaded", () => {
+          const radios = document.querySelectorAll('input[name="payment"]');
+          const orderBtn = document.getElementById("placeOrderBtn");
+
+          radios.forEach((radio) => {
+            radio.addEventListener("change", () => {
+              if (radio.value === "cod") {
+                orderBtn.textContent = "Confirm Order";
+              } else {
+                orderBtn.textContent = `Confirm & Pay ₹${total}`;
+              }
+            });
+          });
+        });
+        //   document.getElementById("placeOrderBtn").textContent = `Confirm & Pay ₹${total}`;
+        document
+          .getElementById("placeOrderBtn")
+          .addEventListener("click", async () => {
+            const paymentMethod = document.querySelector(
+              "input[name='payment']:checked"
+            ).value;
+
+            const orderData = {
+              items,
+              total,
+              address: user.address || {},
+              paymentMethod,
+            };
+
+            try {
+              const res = await fetch("http://localhost:5000/api/orders", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(orderData),
+              });
+
+              if (res.ok) {
+                alert("Order placed successfully!");
+                localStorage.removeItem("cart");
+                localStorage.removeItem("buyNowProduct");
+                window.location.href = "index.html";
+              } else {
+                alert(" Failed to place order.");
+              }
+            } catch (err) {
+              console.error(err);
+              alert(" Network error while placing order.");
+            }
+          });
+      }
+
+      loadOrderPage();
+
+      // ✅ Add to Cart (localStorage version)
+      addCartBtn.onclick = () => {
+        if (!currentProduct) return;
+        const qty = parseInt(qtyInput.value) || 1;
+
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        const index = cart.findIndex((x) => x._id === currentProduct._id);
+        if (index > -1) {
+          cart[index].quantity += qty;
+        } else {
+          cart.push({
+            _id: currentProduct._id,
+            name: currentProduct.name,
+            img: currentProduct.images[0],
+            price: currentProduct.price,
+            quantity: qty,
+          });
+        }
+
+        localStorage.setItem("cart", JSON.stringify(cart));
+        updateCartUI({
+          items: cart.map((c) => ({ product: c, quantity: c.quantity })),
+        });
+        showToast("Added to cart");
+      };
+
+      // ✅ Buy Now
+      document.getElementById("buyNow").onclick = () => {
+        if (!currentProduct) return;
+
+        // Prepare product for Buy Now
+        const product = {
+          _id: currentProduct._id,
+          name: currentProduct.name,
+          img: currentProduct.images[0],
+          price: currentProduct.price,
+          quantity: parseInt(qtyInput.value) || 1,
+        };
+
+        // Store temporary buy-now product
+        localStorage.setItem("buyNowProduct", JSON.stringify(product));
+
+        // Redirect to order summary page with query
+        window.location.href = "order.html?buynow=true";
+      };
+    </script>
+  </body>
+</html>

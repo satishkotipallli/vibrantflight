@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Vibrant Flight — Shop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background: #000;
+        color: #fff;
+        font-family: "Poppins", sans-serif;
+      }
+      .glass {
+        background: rgba(255, 255, 255, 0.06);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .gold {
+        color: #d4af37;
+      }
+    </style>
+  </head>
+  <body>
+    <header
+      class="bg-black/70 border-b border-white/10 sticky top-0 z-50 flex justify-between items-center px-6 py-4"
+    >
+      <div class="flex items-center gap-4">
+        <button
+          onclick="goBack()"
+          class="text-gray-400 hover:text-yellow-400 text-2xl transition"
+          title="Go Back"
+        >
+          &#8592;
+        </button>
+        <h1
+          class="text-3xl md:text-4xl font-['Playfair_Display'] gold font-bold"
+        >
+          VIBRANT FLIGHT
+        </h1>
+      </div>
+    </header>
+
+    <div
+      class="flex flex-wrap justify-between items-center mb-8 gap-4 mt-6 px-6"
+    >
+      <h2 id="pageTitle" class="text-3xl font-bold gold">Our Collection</h2>
+
+      <div class="flex flex-wrap gap-3 items-center">
+        <select
+          id="filterCategory"
+          class="bg-black border border-gray-700 rounded px-3 py-2 text-white"
+        >
+          <option value="">All Categories</option>
+          <option value="tshirt">T-Shirts</option>
+          <option value="shirt">Shirts</option>
+          <option value="jeans">Jeans</option>
+          <option value="chinos">Chinos</option>
+          <option value="accessory">Accessory</option>
+        </select>
+
+        <input
+          id="siteSearch"
+          placeholder="Search products..."
+          class="bg-black border border-gray-700 text-white rounded px-3 py-2 w-48 sm:w-60"
+        />
+      </div>
+    </div>
+
+    <main class="px-6 pb-10">
+      <div
+        id="productGrid"
+        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8"
+      ></div>
+      <p class="mt-6 text-sm text-gray-400">
+        Showing <span id="showCount">0</span> products
+      </p>
+    </main>
+
+    <script>
+      const API_PRODUCTS = "http://localhost:5000/api/products";
+      const API_CART = "http://localhost:5000/api/cart";
+
+      const grid = document.getElementById("productGrid");
+      const filterCategory = document.getElementById("filterCategory");
+      const siteSearch = document.getElementById("siteSearch");
+      const showCount = document.getElementById("showCount");
+      const pageTitle = document.getElementById("pageTitle");
+
+      let PRODUCTS = [];
+      let FILTERED = [];
+
+      function goBack() {
+        if (document.referrer) window.history.back();
+        else window.location.href = "index.html";
+      }
+
+      // Normalize API response to an array
+      function normalizeProductsResponse(json) {
+        if (Array.isArray(json)) return json;
+        if (json == null) return [];
+        if (Array.isArray(json.products)) return json.products;
+        if (Array.isArray(json.data)) return json.data;
+        // if API wraps under some other key, try to find the first array
+        for (const k of Object.keys(json)) {
+          if (Array.isArray(json[k])) return json[k];
+        }
+        return [];
+      }
+
+      async function loadProducts() {
+        try {
+          const res = await fetch(API_PRODUCTS);
+          const json = await res.json();
+          PRODUCTS = normalizeProductsResponse(json);
+          console.log(
+            "Loaded products:",
+            PRODUCTS.slice(0, 5),
+            "total:",
+            PRODUCTS.length
+          );
+          FILTERED = PRODUCTS;
+          applyInitialFilters();
+        } catch (err) {
+          console.error("Error loading products:", err);
+          grid.innerHTML =
+            "<p class='text-gray-400 text-center'>Failed to load products.</p>";
+        }
+      }
+
+      function renderProducts() {
+        grid.innerHTML = "";
+        if (FILTERED.length === 0) {
+          grid.innerHTML =
+            "<p class='text-gray-400 col-span-full text-center'>No products found.</p>";
+          showCount.textContent = 0;
+          return;
+        }
+
+        FILTERED.forEach((p) => {
+          const card = document.createElement("div");
+          card.className =
+            "glass rounded-2xl overflow-hidden hover:scale-105 transition flex flex-col justify-between min-h-[420px]";
+          const name = p.name || "Unnamed";
+          const desc = p.desc || "";
+          const img =
+            p.img || "https://via.placeholder.com/400x300?text=No+Image";
+          const price = p.price != null ? p.price : "—";
+          card.innerHTML = `
+            <a href="product.html?id=${p._id}">
+              <img src="${img}" alt="${name}" class="w-full h-56 object-cover">
+            </a>
+            <div class="p-4">
+              <h3 class="font-semibold text-lg hover:text-yellow-400 transition">${name}</h3>
+              <p class="text-gray-400 text-sm mb-2 line-clamp-2">${desc}</p>
+              <div class="flex items-center justify-between">
+                <span class="gold font-semibold text-xl">₹${price}</span>
+                ${
+                  p.old
+                    ? `<span class="text-gray-500 line-through text-sm">₹${p.old}</span>`
+                    : ""
+                }
+              </div>
+              <p class="text-xs text-gray-500 mt-1 uppercase">${
+                p.category || ""
+              }</p>
+              <button class="addToCartBtn mt-2 w-full py-2 bg-yellow-400 hover:bg-yellow-500 rounded-md font-semibold" data-id="${
+                p._id
+              }">
+                Add to Cart
+              </button>
+            </div>
+          `;
+          grid.appendChild(card);
+        });
+
+        showCount.textContent = FILTERED.length;
+        attachCartListeners();
+      }
+
+      function attachCartListeners() {
+        document.querySelectorAll(".addToCartBtn").forEach((btn) => {
+          // remove previous to avoid duplicate listeners
+          btn.replaceWith(btn.cloneNode(true));
+        });
+        document.querySelectorAll(".addToCartBtn").forEach((btn) => {
+          btn.addEventListener("click", async (e) => {
+            e.preventDefault();
+            const productId = btn.dataset.id;
+            const token = localStorage.getItem("token");
+            if (!token) {
+              toast("⚠️ Please login to continue", { type: "warning" });
+              return;
+            }
+            try {
+              const res = await fetch(API_CART, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ productId, quantity: 1 }),
+              });
+              const data = await res.json();
+              if (!res.ok)
+                throw new Error(data.message || "Failed to add to cart");
+              toast("✅ Product added to cart", { type: "success" });
+            } catch (err) {
+              console.error("Add to cart error:", err);
+              toast("❌ Failed to add to cart. Please try again", {
+                type: "error",
+              });
+            }
+          });
+        });
+      }
+
+      // safe search/filter implementation
+      function applyFilters(category, search) {
+        const q = (search || "").trim().toLowerCase();
+        const cat = (category || "").trim().toLowerCase();
+        FILTERED = PRODUCTS.filter((p) => {
+          const name = (p.name || "").toString().toLowerCase();
+          const desc = (p.desc || "").toString().toLowerCase();
+          const productCategory = (p.category || "").toString().toLowerCase();
+
+          const matchesCategory = !cat || productCategory === cat;
+          const matchesSearch = !q || name.includes(q) || desc.includes(q);
+          return matchesCategory && matchesSearch;
+        });
+        renderProducts();
+      }
+
+      function applyInitialFilters() {
+        const params = new URLSearchParams(window.location.search);
+        const searchQuery = params.get("search");
+        if (searchQuery) {
+          siteSearch.value = searchQuery;
+          pageTitle.innerHTML = `Search results for <span class='gold'>“${searchQuery}”</span>`;
+        }
+        applyFilters(
+          filterCategory.value.toLowerCase(),
+          siteSearch.value.toLowerCase()
+        );
+      }
+
+      // add event listeners before loading products
+      filterCategory.addEventListener("change", () => {
+        applyFilters(
+          filterCategory.value.toLowerCase(),
+          siteSearch.value.toLowerCase()
+        );
+      });
+      siteSearch.addEventListener("input", () => {
+        applyFilters(
+          filterCategory.value.toLowerCase(),
+          siteSearch.value.toLowerCase()
+        );
+      });
+
+      // initialize
+      loadProducts();
+
+      /* toast notification */
+      function toast(msg, opts = {}) {
+        const { duration = 2200 } = opts;
+        const containerId = "vf_toast_container";
+        let container = document.getElementById(containerId);
+        if (!container) {
+          container = document.createElement("div");
+          container.id = containerId;
+          container.style.cssText =
+            "position:fixed;z-index:99999;left:50%;bottom:28px;transform:translateX(-50%);display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none";
+          document.body.appendChild(container);
+        }
+        const t = document.createElement("div");
+        t.textContent = msg;
+        t.style.cssText =
+          "background:rgba(0,0,0,0.8);color:white;padding:10px 14px;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.5);pointer-events:auto;font-weight:500;";
+        container.appendChild(t);
+        requestAnimationFrame(() => (t.style.opacity = "1"));
+        setTimeout(() => {
+          t.style.transition = "opacity .25s ease, transform .25s ease";
+          t.style.opacity = "0";
+          t.style.transform = "translateY(8px)";
+          setTimeout(() => t.remove(), 300);
+        }, duration);
+      }
+    </script>
+    <footer class="text-center py-6 text-gray-500 border-t border-white/10">
+      © 2025 Vibrant Flight
+    </footer>
+  </body>
+</html>
