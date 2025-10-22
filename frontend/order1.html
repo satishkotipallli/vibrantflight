@@ -221,6 +221,10 @@
         document
           .getElementById("placeOrderBtn")
           .addEventListener("click", async () => {
+            if(!user.address){
+              return toast("Enter Address");
+            }
+            
             const paymentMethod = document.querySelector(
               "input[name='payment']:checked"
             ).value;
@@ -304,7 +308,33 @@
         // Redirect to order summary page with query
         window.location.href = "order.html?buynow=true";
       };
+
+      function toast(msg, opts = {}) {
+        const { duration = 2200 } = opts;
+        const containerId = "vf_toast_container";
+        let container = document.getElementById(containerId);
+        if (!container) {
+          container = document.createElement("div");
+          container.id = containerId;
+          container.style.cssText =
+            "position:fixed;z-index:99999;left:50%;bottom:28px;transform:translateX(-50%);display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none";
+          document.body.appendChild(container);
+        }
+        const t = document.createElement("div");
+        t.textContent = msg;
+        t.style.cssText =
+          "background:rgba(0,0,0,0.8);color:white;padding:10px 14px;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.5);pointer-events:auto;font-weight:500;";
+        container.appendChild(t);
+        requestAnimationFrame(() => (t.style.opacity = "1"));
+        setTimeout(() => {
+          t.style.transition = "opacity .25s ease, transform .25s ease";
+          t.style.opacity = "0";
+          t.style.transform = "translateY(8px)";
+          setTimeout(() => t.remove(), 300);
+        }, duration);
+      }
     </script>
   </body>
 </html>
+
 
