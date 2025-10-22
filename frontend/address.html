@@ -214,8 +214,7 @@ document.querySelector("form").addEventListener("submit", async (e) => {
 
   const token = localStorage.getItem("token");
   if (!token) {
-    alert("Please login first!");
-    window.location.href = "login.html";
+    toast("Please login first!");
     return;
   }
 
@@ -241,15 +240,41 @@ document.querySelector("form").addEventListener("submit", async (e) => {
 
     if (!response.ok) throw new Error(data.message || "Failed to update address");
 
-    alert("✅ Address updated successfully!");
+    toast("✅ Address updated successfully!");
     window.location.href="order1.html"; // redirect or stay as you prefer
   } catch (err) {
     console.error("Address update error:", err);
-    alert("Failed to update address: " + err.message);
+    toast("Failed to update address: " + err.message);
   }
 });
+
+    function toast(msg, opts = {}) {
+        const { duration = 2200 } = opts;
+        const containerId = "vf_toast_container";
+        let container = document.getElementById(containerId);
+        if (!container) {
+          container = document.createElement("div");
+          container.id = containerId;
+          container.style.cssText =
+            "position:fixed;z-index:99999;left:50%;bottom:28px;transform:translateX(-50%);display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none";
+          document.body.appendChild(container);
+        }
+        const t = document.createElement("div");
+        t.textContent = msg;
+        t.style.cssText =
+          "background:white;color:color:#ffb347;padding:10px 14px;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.5);pointer-events:auto;font-weight:500;";
+        container.appendChild(t);
+        requestAnimationFrame(() => (t.style.opacity = "1"));
+        setTimeout(() => {
+          t.style.transition = "opacity .25s ease, transform .25s ease";
+          t.style.opacity = "0";
+          t.style.transform = "translateY(8px)";
+          setTimeout(() => t.remove(), 300);
+        }, duration);
+      }
 </script>
 
 </body>
 </html>
+
 
