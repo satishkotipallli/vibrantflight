@@ -323,7 +323,7 @@
         const t = document.createElement("div");
         t.textContent = msg;
         t.style.cssText =
-          "background:rgba(0,0,0,0.8);color:white;padding:10px 14px;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.5);pointer-events:auto;font-weight:500;";
+          "background:linear-gradient(90deg, #ff8a00, #ff4d4d);color:white;padding:10px 14px;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.5);pointer-events:auto;font-weight:500;";
         container.appendChild(t);
         requestAnimationFrame(() => (t.style.opacity = "1"));
         setTimeout(() => {
@@ -336,5 +336,6 @@
     </script>
   </body>
 </html>
+
 
 
