@@ -222,7 +222,7 @@
           .getElementById("placeOrderBtn")
           .addEventListener("click", async () => {
             if(!user.address){
-              return toast("Enter Address");
+              return toast("Please Enter Address");
             }
             
             const paymentMethod = document.querySelector(
@@ -247,16 +247,16 @@
               });
 
               if (res.ok) {
-                alert("Order placed successfully!");
+                toast("Order placed successfully!");
                 localStorage.removeItem("cart");
                 localStorage.removeItem("buyNowProduct");
                 window.location.href = "index.html";
               } else {
-                alert(" Failed to place order.");
+                toast(" Failed to place order.");
               }
             } catch (err) {
               console.error(err);
-              alert(" Network error while placing order.");
+              toast(" Network error while placing order.");
             }
           });
       }
@@ -323,7 +323,7 @@
         const t = document.createElement("div");
         t.textContent = msg;
         t.style.cssText =
-          "background:linear-gradient(90deg, #ff8a00, #ff4d4d);color:white;padding:10px 14px;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.5);pointer-events:auto;font-weight:500;";
+          "background:white;color:linear-gradient(90deg, #ff8a00, #ff4d4d);padding:10px 14px;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.5);pointer-events:auto;font-weight:500;";
         container.appendChild(t);
         requestAnimationFrame(() => (t.style.opacity = "1"));
         setTimeout(() => {
@@ -336,6 +336,7 @@
     </script>
   </body>
 </html>
+
 
 
 
